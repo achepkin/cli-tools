@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Function to show help message
+show_help() {
+    echo "Usage: $(basename "$0") <directory>"
+    echo
+    echo "Merges all PDF files in the specified directory into a single PDF file."
+    echo "The output file will be named after the input directory with '_merged.pdf' suffix."
+    echo
+    echo "Options:"
+    echo "  -h, --help    Show this help message"
+    echo
+    echo "Example:"
+    echo "  $(basename "$0") documents"
+    exit 0
+}
+
+# Show help if no parameters or help flag
+if [ $# -eq 0 ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    show_help
+fi
+
+# Check if directory parameter is provided
+if [ $# -ne 1 ]; then
+    echo "Error: Directory parameter is required"
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+input_dir="$1"
+
+# Verify directory exists
+if [ ! -d "$input_dir" ]; then
+    echo "Error: Directory '$input_dir' not found"
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+# Get base directory name for output file
+output_file="$(basename "$input_dir")_merged.pdf"
+
+# Build the qpdf command with proper quoting
+cmd="qpdf --empty --pages"
+
+# Counter for files
+count=0
+total_size=0
+
+# Function to format file size in human readable format
+format_size() {
+    local size=$1
+    local units=("B" "KB" "MB" "GB")
+    local unit=0
+    
+    while (( $(echo "$size > 1024" | bc -l) == 1 && unit < ${#units[@]}-1 )); do
+        size=$(echo "scale=2; $size/1024" | bc -l)
+        ((unit++))
+    done
+    
+    printf "%.2f%s" $size "${units[$unit]}"
+}
+
+# Find PDF files and add them to command with proper quoting
+while IFS= read -r -d '' file; do
+    cmd+=" '$file'"
+    size=$(stat -f %z "$file")
+    total_size=$(echo "$total_size + $size" | bc -l)
+    ((count++))
+    echo "Adding: $file ($(format_size $size))"
+done < <(find "$input_dir" -name "*.pdf" -print0)
+
+cmd+=" -- '$output_file'"
+
+echo -e "\nProcessing $count PDF files (Total size: $(format_size $total_size))"
+
+# Execute the command
+eval "$cmd"
+
+# Check if merge was successful
+if [ $? -eq 0 ]; then
+    merged_size=$(stat -f %z "$output_file")
+    echo -e "\nMerge complete!"
+    echo "Created: $output_file ($(format_size $merged_size))"
+else
+    echo -e "\nError: PDF merge failed"
+    exit 1
+fi 
