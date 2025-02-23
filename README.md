@@ -12,21 +12,19 @@ mpdf <directory>
 ```
 
 ### pdf2md (Convert PDF to Markdown)
-Converts PDF files to Markdown format, preserving text and tables.
+Converts PDF files to Markdown format using PyMuPDF4LLM, with enhanced support for:
 
 ```bash
 pdf2md <pdf_file> [-o output_file]
 ```
 
 Features:
-- Automatically finds all PDF files in the specified directory
-- Shows progress with file sizes
-- Creates output file named after the input directory
-- Preserves original files
-- Extracts text and tables from PDF
-- Preserves basic formatting
-- Supports custom output path
-- Shows conversion progress
+- Multi-column page support
+- Better table detection and formatting
+- Automatic header detection (H1-H6)
+- Bold, italic, and code block formatting
+- Ordered and unordered lists support
+- Image and vector graphics extraction
 
 ## 🚀 Installation
 
@@ -34,11 +32,9 @@ Features:
 ```bash
 # macOS
 brew install qpdf
-pip install pdfplumber
 
 # Ubuntu/Debian
 sudo apt-get install qpdf python3-pip
-pip install pdfplumber
 ```
 
 2. Create a bin directory (if it doesn't exist):
@@ -83,7 +79,7 @@ mpdf --help
 ├── bin/            # Your executable scripts (symlinks)
 └── cli-tools/      # This repository
     ├── mpdf       # PDF merger tool
-    ├── pdf2md     # PDF to Markdown converter
+    ├── pdf2md     # Enhanced PDF to Markdown converter
     ├── ...        # Other tools
     └── README.md   # This file
 ```
@@ -117,6 +113,6 @@ pdf2md document.pdf -o custom_output.md
   - qpdf: PDF manipulation tool
   - bc: Basic calculator (usually pre-installed)
   - Python 3.x
-  - pdfplumber: PDF text extraction library
+  - pymupdf4llm: Enhanced PDF to Markdown conversion
 
 ## 📝 License
