@@ -8,8 +8,11 @@ Personal collection of command-line tools to enhance daily workflow.
 Merges multiple PDF files in a directory into a single PDF file.
 
 ```bash
-pdfmerge <directory>
+pdfmerge <directory> [-m|--markdown]
 ```
+
+Options:
+- `-m, --markdown`: Also convert the merged PDF to markdown
 
 ### pdf2md (Convert PDF to Markdown)
 Converts PDF files to Markdown format using PyMuPDF4LLM, with enhanced support for:
@@ -17,14 +20,6 @@ Converts PDF files to Markdown format using PyMuPDF4LLM, with enhanced support f
 ```bash
 pdf2md <pdf_file> [-o output_file]
 ```
-
-Features:
-- Multi-column page support
-- Better table detection and formatting
-- Automatic header detection (H1-H6)
-- Bold, italic, and code block formatting
-- Ordered and unordered lists support
-- Image and vector graphics extraction
 
 ## 🚀 Installation
 
@@ -105,6 +100,10 @@ pdf2md document.pdf
 # Specify custom output path
 pdf2md document.pdf -o custom_output.md
 ```
+
+# Merge PDFs and convert to markdown
+pdfmerge ~/Downloads/reports --markdown
+# Creates reports_merged.pdf and reports_merged.md
 
 ## 🔍 Requirements
 

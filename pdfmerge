@@ -2,16 +2,18 @@
 
 # Function to show help message
 show_help() {
-    echo "Usage: $(basename "$0") <directory>"
+    echo "Usage: $(basename "$0") <directory> [-m|--markdown]"
     echo
     echo "Merges all PDF files in the specified directory into a single PDF file."
     echo "The output file will be named after the input directory with '_merged.pdf' suffix."
     echo
     echo "Options:"
-    echo "  -h, --help    Show this help message"
+    echo "  -h, --help     Show this help message"
+    echo "  -m, --markdown Also convert the merged PDF to markdown"
     echo
     echo "Example:"
     echo "  $(basename "$0") documents"
+    echo "  $(basename "$0") reports --markdown"
     exit 0
 }
 
@@ -20,24 +22,42 @@ if [ $# -eq 0 ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     show_help
 fi
 
+# Parse arguments
+input_dir=""
+convert_markdown=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -m|--markdown)
+            convert_markdown=true
+            shift
+            ;;
+        -h|--help)
+            show_help
+            ;;
+        *)
+            input_dir="$1"
+            shift
+            ;;
+    esac
+done
+
 # Check if directory parameter is provided
-if [ $# -ne 1 ]; then
+if [ -z "$input_dir" ]; then
     echo "Error: Directory parameter is required"
-    echo "Usage: $0 <directory>"
+    echo "Usage: $0 <directory> [-m|--markdown]"
     exit 1
 fi
-
-input_dir="$1"
 
 # Verify directory exists
 if [ ! -d "$input_dir" ]; then
     echo "Error: Directory '$input_dir' not found"
-    echo "Usage: $0 <directory>"
+    echo "Usage: $0 <directory> [-m|--markdown]"
     exit 1
 fi
 
 # Get base directory name for output file
-output_file="$(basename "$input_dir")_merged.pdf"
+output_file="$(basename "$input_dir")-merged.pdf"
 
 # Build the qpdf command with proper quoting
 cmd="qpdf --empty --pages"
@@ -81,6 +101,12 @@ if [ $? -eq 0 ]; then
     merged_size=$(stat -f %z "$output_file")
     echo -e "\nMerge complete!"
     echo "Created: $output_file ($(format_size $merged_size))"
+
+    # After successful merge, convert to markdown if requested
+    if [ "$convert_markdown" = true ]; then
+        echo -e "\nConverting to Markdown..."
+        pdf2md "$output_file"
+    fi
 else
     echo -e "\nError: PDF merge failed"
     exit 1
