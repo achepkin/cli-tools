@@ -4,11 +4,11 @@ Personal collection of command-line tools to enhance daily workflow.
 
 ## 🛠 Tools
 
-### mpdf (Merge PDFs)
+### pdfmerge (Merge PDFs)
 Merges multiple PDF files in a directory into a single PDF file.
 
 ```bash
-mpdf <directory>
+pdfmerge <directory>
 ```
 
 ### pdf2md (Convert PDF to Markdown)
@@ -70,7 +70,7 @@ source ~/.zshrc  # or source ~/.bash_profile
 
 8. Verify installation:
 ```bash
-mpdf --help
+pdfmerge --help
 ```
 
 ## 📁 Directory Structure
@@ -78,7 +78,7 @@ mpdf --help
 ~/.local/
 ├── bin/            # Your executable scripts (symlinks)
 └── cli-tools/      # This repository
-    ├── mpdf       # PDF merger tool
+    ├── pdfmerge   # PDF merger tool
     ├── pdf2md     # Enhanced PDF to Markdown converter
     ├── ...        # Other tools
     └── README.md   # This file
@@ -92,7 +92,7 @@ Merge all PDFs in a directory:
 cd ~/Documents
 
 # Merge PDFs from a specific directory
-mpdf ~/Downloads/reports
+pdfmerge ~/Downloads/reports
 
 # The merged file will be created as 'reports_merged.pdf'
 ```
