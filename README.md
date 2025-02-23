@@ -11,11 +11,22 @@ Merges multiple PDF files in a directory into a single PDF file.
 mpdf <directory>
 ```
 
+### pdf2md (Convert PDF to Markdown)
+Converts PDF files to Markdown format, preserving text and tables.
+
+```bash
+pdf2md <pdf_file> [-o output_file]
+```
+
 Features:
 - Automatically finds all PDF files in the specified directory
 - Shows progress with file sizes
 - Creates output file named after the input directory
 - Preserves original files
+- Extracts text and tables from PDF
+- Preserves basic formatting
+- Supports custom output path
+- Shows conversion progress
 
 ## 🚀 Installation
 
@@ -23,9 +34,11 @@ Features:
 ```bash
 # macOS
 brew install qpdf
+pip install pdfplumber
 
 # Ubuntu/Debian
-sudo apt-get install qpdf
+sudo apt-get install qpdf python3-pip
+pip install pdfplumber
 ```
 
 2. Create a bin directory (if it doesn't exist):
@@ -45,7 +58,7 @@ chmod +x ~/projects/cli-tools/*
 
 5. Create symbolic links:
 ```bash
-ln -s ~/projects/cli-tools/* ~/.local/bin/
+ln -s ~/projects/cli-tools/ ~/.local/bin/
 ```
 
 6. Add the bin directory to your PATH:
@@ -70,6 +83,7 @@ mpdf --help
 ├── bin/            # Your executable scripts (symlinks)
 └── cli-tools/      # This repository
     ├── mpdf       # PDF merger tool
+    ├── pdf2md     # PDF to Markdown converter
     ├── ...        # Other tools
     └── README.md   # This file
 ```
@@ -87,11 +101,22 @@ mpdf ~/Downloads/reports
 # The merged file will be created as 'reports_merged.pdf'
 ```
 
+Convert PDF to Markdown:
+```bash
+# Convert a PDF file to Markdown
+pdf2md document.pdf
+
+# Specify custom output path
+pdf2md document.pdf -o custom_output.md
+```
+
 ## 🔍 Requirements
 
 - Shell: Bash or Zsh
 - Dependencies:
   - qpdf: PDF manipulation tool
   - bc: Basic calculator (usually pre-installed)
+  - Python 3.x
+  - pdfplumber: PDF text extraction library
 
 ## 📝 License

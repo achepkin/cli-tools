@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+# Check if running in virtual environment
+if [[ -z "${VIRTUAL_ENV}" ]]; then
+    # Configuration
+    VENV_DIR="$HOME/.venvs/pdf-tools"
+
+    # Create virtual environment if it doesn't exist
+    if [ ! -d "$VENV_DIR" ]; then
+        echo "Setting up virtual environment..."
+        python3 -m venv "$VENV_DIR"
+        source "$VENV_DIR/bin/activate"
+        pip install pdfplumber
+    else
+        source "$VENV_DIR/bin/activate"
+    fi
+fi
+
+# Execute the Python script
+python3 - "$@" << 'EOF'
+import pdfplumber
+import argparse
+import os
+import re
+
+def clean_text(text):
+    """Clean and format extracted text"""
+    # Remove multiple spaces
+    text = re.sub(r'\s+', ' ', text)
+    # Remove multiple newlines
+    text = re.sub(r'\n\s*\n', '\n\n', text)
+    return text.strip()
+
+def convert_pdf_to_md(pdf_path, output_path=None):
+    """Convert PDF to Markdown format"""
+    if output_path is None:
+        output_path = os.path.splitext(pdf_path)[0] + '.md'
+
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            print(f"Converting {pdf_path} to Markdown...")
+            
+            with open(output_path, 'w', encoding='utf-8') as md_file:
+                # Write title
+                filename = os.path.basename(pdf_path)
+                md_file.write(f"# {os.path.splitext(filename)[0]}\n\n")
+
+                # Process each page
+                total_pages = len(pdf.pages)
+                for page_num, page in enumerate(pdf.pages, 1):
+                    print(f"Processing page {page_num}/{total_pages}")
+                    
+                    # Extract text
+                    text = page.extract_text()
+                    if text:
+                        text = clean_text(text)
+                        md_file.write(text + "\n\n")
+                    
+                    # Extract tables
+                    tables = page.extract_tables()
+                    for table in tables:
+                        # Convert table to markdown format
+                        md_file.write("|" + "|".join(" -- " for _ in table[0]) + "|\n")
+                        md_file.write("|" + "|".join("---" for _ in table[0]) + "|\n")
+                        for row in table:
+                            md_file.write("|" + "|".join(str(cell or "") for cell in row) + "|\n")
+                        md_file.write("\n")
+
+        print(f"Conversion complete! Output saved to: {output_path}")
+        return True
+
+    except Exception as e:
+        print(f"Error converting PDF: {str(e)}")
+        return False
+
+def main():
+    parser = argparse.ArgumentParser(description='Convert PDF to Markdown')
+    parser.add_argument('pdf_path', help='Path to the PDF file')
+    parser.add_argument('-o', '--output', help='Output markdown file path (optional)')
+    
+    args = parser.parse_args()
+
+    if not os.path.exists(args.pdf_path):
+        print(f"Error: File not found: {args.pdf_path}")
+        return
+
+    convert_pdf_to_md(args.pdf_path, args.output)
+
+if __name__ == '__main__':
+    main()
+EOF
